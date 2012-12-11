@@ -15,6 +15,16 @@ public class Triangle {
 	}
 
 	
+	public boolean contains(Point p){
+		double areaTotal = this.getArea();
+		Triangle t = new Triangle(p1,p2, p);
+		double area1 = t.getArea();
+		t = new Triangle(p3,p2, p);
+		double area2 = t.getArea();
+		t = new Triangle(p3,p1, p);
+		double area3 = t.getArea();
+		return (float)areaTotal + 0.000001 >= (float)(area1 + area2 + area3);
+	}
 	
 	public boolean equals(Triangle t) {
 		ArrayList<Point> set1 = new ArrayList<Point>();
@@ -38,6 +48,11 @@ public class Triangle {
 	}
 
 
+	public double getArea(){
+		double hauteur = this.p1.distance(p2, p3);
+		double base = this.p2.distance(p3);
+		return base*hauteur;
+	}
 
 	/*
 	 * GETTERS AND SETTERS
