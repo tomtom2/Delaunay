@@ -17,12 +17,18 @@ public class TestDelaunay {
 	private Point p3;
 	private Point p4;
 	private ArrayList<Point> P = new ArrayList<Point>();
+	private Delaunay d;
 	@Before
 	public void setUp() throws Exception {
 		p1 = new Point(1, 2);
 		p2 = new Point(2, 3);
 		p3 = new Point(4, 1);
 		p4 = new Point(2, 2);
+		P.add(p1);
+		P.add(p2);
+		P.add(p3);
+		P.add(p4);
+		d = new Delaunay(P);
 	}
 
 	@After
@@ -30,59 +36,26 @@ public class TestDelaunay {
 	}
 
 	@Test
-	public void testPoint() {
+	public void testFlip() {
+		Triangle t1 = new Triangle(p1, p2, p3);
+		Triangle t2 = new Triangle(p2, p3, p4);
+		Triangle[] flipList = d.flip(t1, t2);
+		Triangle t3 = new Triangle(p1, p2, p4);
+		Triangle t4 = new Triangle(p1, p4, p3);
+		
+		assertFalse(t3.equals(flipList[0]));
+		assertFalse(t4.equals(flipList[1]));
+		assertTrue(t3.equals(flipList[2]));
+		assertTrue(t4.equals(flipList[3]));
+	}
+	
+	@Test
+	public void testLegalize() {
 		Point point1 = new Point(1, 2);
 		Point point2 = new Point(1, 2);
 		
 		assertTrue(point1.equals(point2));
 		assertFalse(point1==point2);
-	}
-	
-	@Test
-	public void testDistancePoint() {
-		Point point1 = new Point(1, 2);
-		Point point2 = new Point(4, 6);
-		
-		assertTrue(point1.distance(point2)==5);
-	}
-	
-	@Test
-	public void testPointIsOnSegment() {
-		Point point1 = new Point(1, 2);
-		Point point2 = new Point(4, -1);
-		Point pointOn = new Point(2, 1);
-		Point pointOut = new Point(2, 2);
-		
-		assertTrue(pointOn.isOnSegment(point1, point2));
-		assertFalse(pointOut.isOnSegment(point1, point2));
-	}
-	
-	@Test
-	public void testDistancePoint_Segment() {
-		Point point1 = new Point(1, 2);
-		Point point2 = new Point(4, 6);
-		Point point3 = new Point(4, 0);
-		
-		assertTrue(point1.distance(point2, point3)==3);
-	}
-	
-	@Test
-	public void testTriangle() {
-		Triangle t1 = new Triangle(p1, p2, p3);
-		Triangle t2 = new Triangle(p1, p3, p2);
-		Triangle t3 = new Triangle(p1, p2, p4);
-		
-		assertTrue(t1.equals(t2));
-		assertFalse(t1.equals(t3));
-	}
-	
-	@Test
-	public void testTriangleContainsPoint() {
-		Triangle t1 = new Triangle(p1, p2, p3);
-		Point ext = new Point(2, 1);
-		
-		assertTrue(t1.contains(p4));
-		assertFalse(t1.contains(ext));
 	}
 
 }
