@@ -7,6 +7,11 @@ public class Delaunay {
 	private ArrayList<Point> P;
 	private ArrayList<Triangle> T;
 	
+	public Delaunay(){
+		this.P = new ArrayList<Point>();
+		this.T = new ArrayList<Triangle>();
+	}
+	
 	public Delaunay(ArrayList<Point> liste){
 		this.P = liste;
 		this.T = new ArrayList<Triangle>();
@@ -44,10 +49,10 @@ public class Delaunay {
 	 */
 	public void addPointOutside(Point point){
 		//-TODO
+		X
 	}
 	
 	public ArrayList<Point> getListOfPointsVisibleBy(Point point){
-		//-TODO
 		ArrayList<Point> visiblePoints = new ArrayList<Point>();
 		for(Point pointOfGraph : P){
 			boolean noCrossing = true;
@@ -71,8 +76,6 @@ public class Delaunay {
 	}
 	
 	public boolean segmentCrossing(Point p11, Point p12, Point p21, Point p22){
-		//-TODO
-		
 		//if vertical parallel
 		if(p12.getX()==p11.getX() && p22.getX()==p21.getX()){
 			return false;
@@ -80,36 +83,41 @@ public class Delaunay {
 		//if first segment is vertical
 		else if(p12.getX()==p11.getX()){
 			//coef of second segment
-			double c = (p22.getY()-p21.getY())/(p22.getX()-p21.getX());
-			double d = p21.getY()-c*p21.getX();
+			double c = 1.0*(p22.getY()-p21.getY())/(p22.getX()-p21.getX());
+			double d = 1.0*p21.getY()-c*p21.getX();
 			
 			double x = p12.getX();
 			double y = c*x + d;
 			
-			Point[] segment = {p21, p22};
-			Rectangle cible = new Rectangle(segment);
-			return cible.containsCoord(x, y);
+			Point[] segment1 = {p11, p12};
+			Rectangle cible1 = new Rectangle(segment1);
+			Point[] segment2 = {p21, p22};
+			Rectangle cible2 = new Rectangle(segment2);
+			
+			return (cible1.containsCoord(x, y) && cible2.containsCoord(x, y));
 		}
 		//if second segment is vertical
 		else if(p22.getX()==p21.getX()){
 			//coef for first segment
-			double a = (p12.getY()-p11.getY())/(p12.getX()-p11.getX());
-			double b = p11.getY()-a*p11.getX();
+			double a = 1.0*(p12.getY()-p11.getY())/(p12.getX()-p11.getX());
+			double b = 1.0*p11.getY()-a*p11.getX();
 			
 			double x = p22.getX();
 			double y = a*x + b;
 			
-			Point[] segment = {p11, p12};
-			Rectangle cible = new Rectangle(segment);
-			return cible.containsCoord(x, y);
+			Point[] segment1 = {p11, p12};
+			Rectangle cible1 = new Rectangle(segment1);
+			Point[] segment2 = {p21, p22};
+			Rectangle cible2 = new Rectangle(segment2);
+			
+			return (cible1.containsCoord(x, y) && cible2.containsCoord(x, y));
 		}
 		
 		//solve the equation a.x+b = c.x+d
-		double a = (p12.getY()-p11.getY())/(p12.getX()-p11.getX());
-		double b = p11.getY()-a*p11.getX();
-		
-		double c = (p22.getY()-p21.getY())/(p22.getX()-p21.getX());
-		double d = p21.getY()-c*p21.getX();
+		double a = 1.0*(p12.getY()-p11.getY())/(p12.getX()-p11.getX());
+		double b = 1.0*p11.getY()-a*p11.getX();
+		double c = 1.0*(p22.getY()-p21.getY())/(p22.getX()-p21.getX());
+		double d = 1.0*p21.getY()-c*p21.getX();
 		
 		if(a==c){
 			return false;
@@ -120,10 +128,12 @@ public class Delaunay {
 		double x = (d-b)/(a-c);
 		double y = a*x + b;
 		
-		Point[] segment = {p11, p12};
-		Rectangle cible = new Rectangle(segment);
+		Point[] segment1 = {p11, p12};
+		Rectangle cible1 = new Rectangle(segment1);
+		Point[] segment2 = {p21, p22};
+		Rectangle cible2 = new Rectangle(segment2);
 		
-		return cible.containsCoord(x, y);
+		return (cible1.containsCoord(x, y) && cible2.containsCoord(x, y));
 	}
 	
 	public void legalize(Triangle t){

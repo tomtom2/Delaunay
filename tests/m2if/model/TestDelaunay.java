@@ -197,19 +197,28 @@ public class TestDelaunay {
 		Point p01 = new Point(0, 1);
 		Point p11 = new Point(1, 1);
 		
+		Point p22 = new Point(2, 2);
+		Point p20 = new Point(2, 0);
+		
 		assertFalse(d.segmentCrossing(p00, p10, p01, p11));
+		assertTrue(d.segmentCrossing(p00, p11, p01, p20));
+		assertFalse(d.segmentCrossing(p22, p01, p01, p11));
+		System.out.println("*******************************");
+		boolean b = d.segmentCrossing(p22, p01, p11, p20);
+		System.out.println("*******************************");
+		assertFalse(b);
 	}
 	
 	@Test
 	public void testGetListOfPointsVisibleBy(){
 		ArrayList<Point> pointList = new ArrayList<Point>();
 		Point p00 = new Point(0, 0); pointList.add(p00);
-		Point p10 = new Point(1, 0); pointList.add(p10);
+		Point p20 = new Point(2, 0); pointList.add(p20);
 		Point p01 = new Point(0, 1); pointList.add(p01);
 		Point p11 = new Point(1, 1); pointList.add(p11);
 		Point p22 = new Point(2, 2); pointList.add(p22);
 		d.setP(pointList);
-		Triangle triangle = new Triangle(p01, p10, p11);
+		Triangle triangle = new Triangle(p01, p20, p11);
 		d.getT().add(triangle);
 		
 		ArrayList<Point> originSet = d.getListOfPointsVisibleBy(p00);
@@ -220,13 +229,13 @@ public class TestDelaunay {
 		
 		assertTrue(originSet.size()==2);
 		assertTrue(originSet.contains(p01));
-		assertTrue(originSet.contains(p10));
+		assertTrue(originSet.contains(p20));
 		
 		for(Point p : p22Set)
 			System.out.println(p);
 		assertTrue(p22Set.size()==3);
 		assertTrue(p22Set.contains(p01));
-		assertTrue(p22Set.contains(p10));
+		assertTrue(p22Set.contains(p20));
 		assertTrue(p22Set.contains(p11));
 	}
 	
