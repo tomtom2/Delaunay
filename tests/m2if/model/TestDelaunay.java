@@ -51,6 +51,25 @@ public class TestDelaunay {
 	}
 	
 	@Test
+	public void testGetNeigboursOfPoint() {
+		Triangle t1 = new Triangle(p1, p2, p3);
+		Triangle t2 = new Triangle(p2, p3, p4);
+		Point p5 = new Point(5, 5);
+		Triangle t3 = new Triangle(p1, p5, p4);
+		ArrayList<Triangle> triangulation = new ArrayList<Triangle>();
+		triangulation.add(t1);
+		triangulation.add(t2);
+		triangulation.add(t3);
+		d.setT(triangulation);
+		
+		assertTrue(d.getNeigbours(p1).size()==4);
+		assertTrue(d.getNeigbours(p1).contains(p2));
+		assertTrue(d.getNeigbours(p1).contains(p3));
+		assertTrue(d.getNeigbours(p1).contains(p4));
+		assertTrue(d.getNeigbours(p1).contains(p5));
+	}
+	
+	@Test
 	public void testGetNeigbours() {
 		Triangle t1 = new Triangle(p1, p2, p3);
 		Triangle t2 = new Triangle(p2, p3, p4);

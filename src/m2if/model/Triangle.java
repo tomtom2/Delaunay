@@ -45,6 +45,22 @@ public class Triangle {
 		return set1.size()==1;
 	}
 	
+	public Point[] getOtherPoints(Point p){
+		if(p.equals(p1)){
+			Point[] neighbourList = {p2, p3};
+			return neighbourList;
+		}
+		else if(p.equals(p2)){
+			Point[] neighbourList = {p3, p1};
+			return neighbourList;
+		}
+		else if(p.equals(p3)){
+			Point[] neighbourList = {p1, p2};
+			return neighbourList;
+		}
+		return null;
+	}
+	
 	public Point[] getCommonSegment(Triangle t){
 		ArrayList<Point> set_this = new ArrayList<Point>();
 		set_this.add(this.p1);

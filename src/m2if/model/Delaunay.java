@@ -49,7 +49,7 @@ public class Delaunay {
 	 */
 	public void addPointOutside(Point point){
 		//-TODO
-		X
+		ArrayList<Point> visiblePoints = getListOfPointsVisibleBy(point);
 	}
 	
 	public ArrayList<Point> getListOfPointsVisibleBy(Point point){
@@ -155,6 +155,19 @@ public class Delaunay {
 			}
 		}
 		neigbourList.remove(t);
+		return neigbourList;
+	}
+	
+	public ArrayList<Point> getNeigbours(Point p){
+		ArrayList<Point> neigbourList = new ArrayList<Point>();
+		for(Triangle triangle : T){
+			Point[] pointList = triangle.getOtherPoints(p);
+			if(pointList!=null){
+				neigbourList.add(pointList[0]);
+				neigbourList.add(pointList[1]);
+			}
+		}
+		neigbourList.remove(p);
 		return neigbourList;
 	}
 	
