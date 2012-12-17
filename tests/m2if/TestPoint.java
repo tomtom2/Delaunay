@@ -1,7 +1,9 @@
-package m2if.model;
+package m2if;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import m2if.Point;
 
 import org.junit.Test;
 

@@ -1,11 +1,13 @@
-package m2if.model;
+package m2if;
 
 import java.util.ArrayList;
 
-public class Delaunay {
+public class Delaunay implements Observable{
 
 	private ArrayList<Point> P;
 	private ArrayList<Triangle> T;
+	
+	private ArrayList<Observer> observers = new ArrayList<Observer>();
 	
 	public Delaunay(){
 		this.P = new ArrayList<Point>();
@@ -15,6 +17,28 @@ public class Delaunay {
 	public Delaunay(ArrayList<Point> liste){
 		this.P = liste;
 		this.T = new ArrayList<Triangle>();
+	}
+	
+	
+	public void addPoint(Point p){
+		P.add(p);
+		if(P.size()<3){
+			return;
+		}
+		
+		else if(P.size()==3){
+			T.add(new Triangle(P.get(0), P.get(1), P.get(2)));
+		}
+		else{
+			for(Triangle triangle : T){
+				if(triangle.contains(p)){
+					addPointInTriangle(p, triangle);
+					return;
+				}
+			}
+			addPointOutside(p);
+		}
+		update();
 	}
 	
 	/**
@@ -49,7 +73,14 @@ public class Delaunay {
 	 */
 	public void addPointOutside(Point point){
 		//-TODO
-		ArrayList<Point> visiblePoints = getListOfPointsVisibleBy(point);
+		ArrayList<Point[]> visibleSegmentList = this.getNeighboursOnVisibleLineFor(point);
+		                                                                                                                                 
+		for(Point[] segment : visibleSegmentList){
+			Triangle futurTriangle = new Triangle(point, segment[0], segment[1]);
+			if(!containsTriangle(futurTriangle)){
+				T.add(futurTriangle);
+			}
+		}
 	}
 	
 	public ArrayList<Point> getListOfPointsVisibleBy(Point point){
@@ -137,7 +168,7 @@ public class Delaunay {
 	}
 	
 	public void legalize(Triangle t){
-		Triangle illegalNeighbour = getIllegalNeighbour(t, getNeigbours(t));
+		Triangle illegalNeighbour = getIllegalNeighbour(t, getNeighbours(t));
 		if(illegalNeighbour!=null){
 			Triangle[] listOldAndNew = flip(t, illegalNeighbour);
 			T.remove(listOldAndNew[0]);
@@ -147,7 +178,7 @@ public class Delaunay {
 		}
 	}
 	
-	public ArrayList<Triangle> getNeigbours(Triangle t){
+	public ArrayList<Triangle> getNeighbours(Triangle t){
 		ArrayList<Triangle> neigbourList = new ArrayList<Triangle>();
 		for(Triangle triangle : T){
 			if(triangle.hasSegment(t.getP1(), t.getP2()) || triangle.hasSegment(t.getP2(), t.getP3()) || triangle.hasSegment(t.getP3(), t.getP1())){
@@ -158,7 +189,7 @@ public class Delaunay {
 		return neigbourList;
 	}
 	
-	public ArrayList<Point> getNeigbours(Point p){
+	public ArrayList<Point> getNeighbours(Point p){
 		ArrayList<Point> neigbourList = new ArrayList<Point>();
 		for(Triangle triangle : T){
 			Point[] pointList = triangle.getOtherPoints(p);
@@ -168,6 +199,56 @@ public class Delaunay {
 			}
 		}
 		neigbourList.remove(p);
+		return neigbourList;
+	}
+	
+	public ArrayList<Point[]> getNeighboursOnVisibleLineFor(Point p){
+		ArrayList<Point> visiblePoints = this.getListOfPointsVisibleBy(p);
+		ArrayList<Point[]> neigbourList = new ArrayList<Point[]>();
+		for(Triangle triangle : T){
+			if(visiblePoints.contains(triangle.getP1()) && visiblePoints.contains(triangle.getP2())){
+				Triangle futureTriangle = new Triangle(triangle.getP1(), triangle.getP2(), p);
+				boolean triangleIsValide = true;
+				for(Point pointTest : P){
+					if(futureTriangle.contains(pointTest) && !pointTest.equals(futureTriangle.getP1()) && !pointTest.equals(futureTriangle.getP2()) && !pointTest.equals(futureTriangle.getP3())){
+						triangleIsValide = false;
+						break;
+					}
+				}
+				if(triangleIsValide){
+					Point[] VisibleSegment = {triangle.getP1(), triangle.getP2()};
+					neigbourList.add(VisibleSegment);
+				}
+			}
+			if(visiblePoints.contains(triangle.getP2()) && visiblePoints.contains(triangle.getP3())){
+				Triangle futureTriangle = new Triangle(triangle.getP2(), triangle.getP3(), p);
+				boolean triangleIsValide = true;
+				for(Point pointTest : P){
+					if(futureTriangle.contains(pointTest) && !pointTest.equals(futureTriangle.getP1()) && !pointTest.equals(futureTriangle.getP2()) && !pointTest.equals(futureTriangle.getP3())){
+						triangleIsValide = false;
+						break;
+					}
+				}
+				if(triangleIsValide){
+					Point[] VisibleSegment = {triangle.getP2(), triangle.getP3()};
+					neigbourList.add(VisibleSegment);
+				}
+			}
+			if(visiblePoints.contains(triangle.getP3()) && visiblePoints.contains(triangle.getP1())){
+				Triangle futureTriangle = new Triangle(triangle.getP3(), triangle.getP1(), p);
+				boolean triangleIsValide = true;
+				for(Point pointTest : P){
+					if(futureTriangle.contains(pointTest) && !pointTest.equals(futureTriangle.getP1()) && !pointTest.equals(futureTriangle.getP2()) && !pointTest.equals(futureTriangle.getP3())){
+						triangleIsValide = false;
+						break;
+					}
+				}
+				if(triangleIsValide){
+					Point[] VisibleSegment = {triangle.getP3(), triangle.getP1()};
+					neigbourList.add(VisibleSegment);
+				}
+			}
+		}
 		return neigbourList;
 	}
 	
@@ -244,6 +325,22 @@ public class Delaunay {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void addObserver(Observer obs) {
+		observers.add(obs);
+	}
+
+	@Override
+	public void clear() {
+		observers = new ArrayList<Observer>();
+	}
+
+	@Override
+	public void update() {
+		for(Observer obs : observers)
+			obs.update(T);
 	}
 	
 	

@@ -1,4 +1,4 @@
-package m2if.model;
+package m2if;
 
 public class Rectangle {
 
@@ -33,7 +33,6 @@ public class Rectangle {
 	}
 	
 	public boolean containsCoord(double x, double y){
-		System.out.println(x+"<"+Xmax +"&&"+ x+">"+Xmin +"&&"+ y+"<"+Ymax +"&&"+ y+">"+Ymin);
 		return x<Xmax && x>Xmin && y<Ymax && y>Ymin;
 	}
 }

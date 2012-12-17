@@ -1,6 +1,9 @@
-package m2if.model;
+package m2if;
 
 import static org.junit.Assert.*;
+
+import m2if.Point;
+import m2if.Rectangle;
 
 import org.junit.Before;
 import org.junit.Test;

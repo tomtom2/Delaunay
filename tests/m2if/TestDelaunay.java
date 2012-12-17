@@ -1,10 +1,14 @@
-package m2if.model;
+package m2if;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+
+import m2if.Delaunay;
+import m2if.Point;
+import m2if.Triangle;
 
 import org.junit.After;
 import org.junit.Before;
@@ -62,11 +66,11 @@ public class TestDelaunay {
 		triangulation.add(t3);
 		d.setT(triangulation);
 		
-		assertTrue(d.getNeigbours(p1).size()==4);
-		assertTrue(d.getNeigbours(p1).contains(p2));
-		assertTrue(d.getNeigbours(p1).contains(p3));
-		assertTrue(d.getNeigbours(p1).contains(p4));
-		assertTrue(d.getNeigbours(p1).contains(p5));
+		assertTrue(d.getNeighbours(p1).size()==4);
+		assertTrue(d.getNeighbours(p1).contains(p2));
+		assertTrue(d.getNeighbours(p1).contains(p3));
+		assertTrue(d.getNeighbours(p1).contains(p4));
+		assertTrue(d.getNeighbours(p1).contains(p5));
 	}
 	
 	@Test
@@ -81,8 +85,8 @@ public class TestDelaunay {
 		triangulation.add(t3);
 		d.setT(triangulation);
 		
-		assertTrue(d.getNeigbours(t1).size()==1);
-		assertTrue(d.getNeigbours(t1).get(0).equals(t2));
+		assertTrue(d.getNeighbours(t1).size()==1);
+		assertTrue(d.getNeighbours(t1).get(0).equals(t2));
 	}
 	
 	@Test
@@ -103,10 +107,10 @@ public class TestDelaunay {
 		triangulation.add(t2);
 		d.setT(triangulation);
 		
-		assertTrue(d.getNeigbours(t1).size()==2);
-		assertTrue(d.getNeigbours(t1).get(0).equals(t2Legal));
-		assertTrue(d.getNeigbours(t1).get(1).equals(t2));
-		assertTrue(d.getIllegalNeighbour(t1, d.getNeigbours(t1)).equals(t2));
+		assertTrue(d.getNeighbours(t1).size()==2);
+		assertTrue(d.getNeighbours(t1).get(0).equals(t2Legal));
+		assertTrue(d.getNeighbours(t1).get(1).equals(t2));
+		assertTrue(d.getIllegalNeighbour(t1, d.getNeighbours(t1)).equals(t2));
 	}
 	
 	@Test
@@ -222,10 +226,7 @@ public class TestDelaunay {
 		assertFalse(d.segmentCrossing(p00, p10, p01, p11));
 		assertTrue(d.segmentCrossing(p00, p11, p01, p20));
 		assertFalse(d.segmentCrossing(p22, p01, p01, p11));
-		System.out.println("*******************************");
-		boolean b = d.segmentCrossing(p22, p01, p11, p20);
-		System.out.println("*******************************");
-		assertFalse(b);
+		assertFalse(d.segmentCrossing(p22, p01, p11, p20));
 	}
 	
 	@Test
@@ -250,14 +251,39 @@ public class TestDelaunay {
 		assertTrue(originSet.contains(p01));
 		assertTrue(originSet.contains(p20));
 		
-		for(Point p : p22Set)
-			System.out.println(p);
 		assertTrue(p22Set.size()==3);
 		assertTrue(p22Set.contains(p01));
 		assertTrue(p22Set.contains(p20));
 		assertTrue(p22Set.contains(p11));
 	}
 	
+	@Test
+	public void testGetNeighboursOnVisibleLineFor(){
+		ArrayList<Point> pointList = new ArrayList<Point>();
+		Point p00 = new Point(0, 0); pointList.add(p00);
+		Point p20 = new Point(2, 0); pointList.add(p20);
+		Point p01 = new Point(0, 1); pointList.add(p01);
+		Point p11 = new Point(1, 1); pointList.add(p11);
+		Point p22 = new Point(2, 2); pointList.add(p22);
+		d.setP(pointList);
+		Triangle triangle = new Triangle(p01, p20, p11);
+		d.getT().add(triangle);
+		
+		ArrayList<Point[]> visibleSegmentListOrigin = d.getNeighboursOnVisibleLineFor(p00);
+		assertTrue(visibleSegmentListOrigin.size()==1);
+		assertTrue(visibleSegmentListOrigin.get(0)[0].equals(p01));
+		assertTrue(visibleSegmentListOrigin.get(0)[1].equals(p20));
+		
+		ArrayList<Point[]> visibleSegmentListForp22 = d.getNeighboursOnVisibleLineFor(p22);
+		assertTrue(visibleSegmentListForp22.size()==2);
+		
+		assertTrue(visibleSegmentListForp22.get(0)[0].equals(p20));
+		assertTrue(visibleSegmentListForp22.get(0)[1].equals(p11));
+		assertTrue(visibleSegmentListForp22.get(1)[0].equals(p11));
+		assertTrue(visibleSegmentListForp22.get(1)[1].equals(p01));
+	}
+	
+	/*
 	@Test
 	public void testAddPointOnSegmentExtern(){
 		Point p00 = new Point(0, 0);
@@ -290,17 +316,78 @@ public class TestDelaunay {
 		
 		fail("not implemented yet");
 	}
-	
+	*/
 	@Test
 	public void testAddPointOutside(){
+		ArrayList<Point> pointList = new ArrayList<Point>();
+		Point p00 = new Point(0, 0); pointList.add(p00);
+		Point p20 = new Point(2, 0); pointList.add(p20);
+		Point p01 = new Point(0, 1); pointList.add(p01);
+		Point p11 = new Point(1, 1); pointList.add(p11);
+		Point p22 = new Point(2, 2); pointList.add(p22);
+		d.setP(pointList);
+		Triangle triangle = new Triangle(p01, p20, p11);
+		d.getT().add(triangle);
+		
+		d.addPointOutside(p22);
+		assertTrue(d.getT().size()==3);
+		assertTrue(d.containsTriangle(new Triangle(p22, p11, p20)));
+		assertTrue(d.containsTriangle(new Triangle(p22, p11, p01)));
+		
+		d.addPointOutside(p00);
+		assertTrue(d.getT().size()==4);
+		assertTrue(d.containsTriangle(new Triangle(p00, p01, p20)));
+	}
+	
+	@Test
+	public void testAddPointOutsideAvoidTriangleContained(){
+		ArrayList<Point> pointList = new ArrayList<Point>();
+		Point p00 = new Point(0, 0); pointList.add(p00);
+		Point p20 = new Point(2, 0); pointList.add(p20);
+		Point p01 = new Point(0, 1); pointList.add(p01);
+		Point p11 = new Point(1, 1); pointList.add(p11);
+		Point p22 = new Point(2, 2); pointList.add(p22);
+		d.setP(pointList);
+		Triangle triangle = new Triangle(p01, p20, p11);
+		d.getT().add(triangle);
+		
+		d.addPointOutside(p00);
+		assertTrue(d.getT().size()==2);
+		assertTrue(d.containsTriangle(new Triangle(p00, p01, p20)));
+		
+		Triangle testContains = new Triangle(p01, p22, p20);
+		d.addPointOutside(p22);
+		assertTrue(d.getT().size()==4);
+		assertTrue(d.containsTriangle(new Triangle(p22, p11, p20)));
+		assertTrue(d.containsTriangle(new Triangle(p22, p11, p01)));
+	}
+	
+	@Test
+	public void testAddPoint(){
 		Point p00 = new Point(0, 0);
-		Point p40 = new Point(4, 0);
-		Point p24 = new Point(2, 4);
-		Point p22 = new Point(5, 2);
+		Point p20 = new Point(2, 0);
+		Point p01 = new Point(0, 1);
+		Point p11 = new Point(1, 1);
+		Point p22 = new Point(2, 2);
 		
-		Triangle triangle = new Triangle(p00, p40, p24);
+		Delaunay delauney = new Delaunay();
 		
-		fail("not implemented yet");
+		delauney.addPoint(p01);
+		delauney.addPoint(p22);
+		delauney.addPoint(p20);
+		//the first triangle should be created
+		assertTrue(delauney.getT().size()==1);
+		
+		delauney.addPoint(p11);
+		//the point is added inside the triangle
+		assertTrue(delauney.getT().size()==3);
+		
+		delauney.addPoint(p00);
+		//p00 is added as an outside point
+		assertTrue(delauney.getT().size()==4);
+		
+		//P contains exactly 5 points
+		assertTrue(delauney.getP().size()==5);
 	}
 
 }

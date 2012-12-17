@@ -1,4 +1,4 @@
-package m2if.model;
+package m2if;
 
 import java.util.ArrayList;
 
