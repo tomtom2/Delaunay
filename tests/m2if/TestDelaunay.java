@@ -2,13 +2,8 @@ package m2if;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-
-import m2if.Delaunay;
-import m2if.Point;
-import m2if.Triangle;
 
 import org.junit.After;
 import org.junit.Before;
@@ -283,6 +278,31 @@ public class TestDelaunay {
 		assertTrue(visibleSegmentListForp22.get(1)[1].equals(p01));
 	}
 	
+	@Test
+	public void testAddOrRemoveTriangle(){
+		Point p00 = new Point(0, 0);
+		Point p40 = new Point(4, 0);
+		Point p24 = new Point(2, 4);
+		
+		Triangle triangle = new Triangle(p00, p40, p24);
+		int size1 = d.getT().size();
+		d.getT().add(triangle);
+		d.getT().add(triangle);
+		int size2 = d.getT().size();
+		assertTrue(size1+2==size2);
+		
+		Triangle newTriangle = new Triangle(triangle.getP2(), triangle.getP1(), triangle.getP3());
+		System.out.println("Remove:");
+		d.removeTriangle(newTriangle);
+		System.out.println("----------");
+		assertTrue(size1==d.getT().size());
+		
+		d.addTriangle(triangle);
+		d.addTriangle(newTriangle);
+		assertTrue(size1+1==d.getT().size());
+		
+	}
+	
 	/*
 	@Test
 	public void testAddPointOnSegmentExtern(){
@@ -336,7 +356,8 @@ public class TestDelaunay {
 		
 		d.addPointOutside(p00);
 		assertTrue(d.getT().size()==4);
-		assertTrue(d.containsTriangle(new Triangle(p00, p01, p20)));
+		assertTrue(d.containsTriangle(new Triangle(p00, p01, p11)));
+		assertTrue(d.containsTriangle(new Triangle(p00, p20, p11)));
 	}
 	
 	@Test
@@ -351,11 +372,11 @@ public class TestDelaunay {
 		Triangle triangle = new Triangle(p01, p20, p11);
 		d.getT().add(triangle);
 		
-		d.addPointOutside(p00);
+		d.addPointOutside(p00);//a flip occures!
 		assertTrue(d.getT().size()==2);
-		assertTrue(d.containsTriangle(new Triangle(p00, p01, p20)));
+		assertTrue(d.containsTriangle(new Triangle(p00, p01, p11)));
+		assertTrue(d.containsTriangle(new Triangle(p00, p20, p11)));
 		
-		Triangle testContains = new Triangle(p01, p22, p20);
 		d.addPointOutside(p22);
 		assertTrue(d.getT().size()==4);
 		assertTrue(d.containsTriangle(new Triangle(p22, p11, p20)));

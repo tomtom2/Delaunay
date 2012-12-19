@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -56,6 +58,28 @@ public class MainView extends JFrame implements Observer{
 		
 		JMenuItem mntmClear = new JMenuItem("Clear");
 		menuBar.add(mntmClear);
+		
+		JMenuItem mntmRepaint = new JMenuItem("Repaint");
+		mntmRepaint.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				panel.revalidate();
+				panel.repaint();
+			}
+			
+		});
+		menuBar.add(mntmRepaint);
+		mntmClear.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				points = new ArrayList<Point>();
+				triangulation = new ArrayList<Triangle>();
+				triangulator.setP(new ArrayList<Point>());
+				triangulator.setT(new ArrayList<Triangle>());
+				panel.repaint();
+			}
+			
+		});
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -104,9 +128,12 @@ public class MainView extends JFrame implements Observer{
 		});
 	}
 
-	@Override
 	public void update(ArrayList<Triangle> triangulation) {
 		this.triangulation = triangulation;
+		/*System.out.println("From view:");
+		for(Triangle t : this.triangulation)
+			System.out.println(t);
+		System.out.println("\n\n***************************************");*/
 		panel.repaint();
 	}
 	
@@ -120,13 +147,18 @@ public class MainView extends JFrame implements Observer{
 	
 	
 	public class MyPanel extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public void paintComponent(Graphics g) {
-			g.setColor( getBackground() );
+			g.setColor( Color.white );
 			g.fillRect (0, 0, getWidth(), getHeight());
 
 		    g.setColor(Color.black);
 		    for(Point p : points)
-		    	g.fillOval(p.getX(), p.getY(), 5, 5);
+		    	g.fillOval(p.getX()-3, p.getY()-3, 6, 6);
 		    for(Triangle t : triangulation){
 		    	g.drawLine(t.getP1().getX(),t.getP1().getY(),t.getP2().getX(),t.getP2().getY());
 		    	g.drawLine(t.getP2().getX(),t.getP2().getY(),t.getP3().getX(),t.getP3().getY());

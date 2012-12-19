@@ -7,11 +7,23 @@ public class Triangle {
 	private Point p1;
 	private Point p2;
 	private Point p3;
+	private double angleMin;
 	
 	public Triangle(Point p1, Point p2, Point p3){
 		this.p1 = p1;
 		this.p2 = p2;
 		this.p3 = p3;
+		
+		double a = p1.distance(p2);
+		double b = p2.distance(p3);
+		double c = p3.distance(p1);
+		
+		double A = Math.acos((b*b+c*c-a*a)/(2*b*c));
+		double B = Math.acos((a*a+c*c-b*b)/(2*a*c));
+		double C = Math.acos((a*a+b*b-c*c)/(2*a*b));
+		
+		double med = Math.min(A, B);
+		angleMin = Math.min(med, C);
 	}
 
 	
@@ -150,6 +162,11 @@ public class Triangle {
 
 	public void setP3(Point p3) {
 		this.p3 = p3;
+	}
+
+
+	public double getAngleMin() {
+		return angleMin;
 	}
 
 

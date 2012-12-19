@@ -32,10 +32,13 @@ public class Delaunay implements Observable{
 		else{
 			for(Triangle triangle : T){
 				if(triangle.contains(p)){
+					System.out.println("Add point in triangle!");
 					addPointInTriangle(p, triangle);
+					update();
 					return;
 				}
 			}
+			System.out.println("Add point outside!");
 			addPointOutside(p);
 		}
 		update();
@@ -48,18 +51,18 @@ public class Delaunay implements Observable{
 	 * @param triangle
 	 */
 	public void addPointInTriangle(Point point, Triangle triangle){
-		if(triangle.contains(point)){
-			Triangle t1 = new Triangle(triangle.getP1(), triangle.getP2(), point);
-			Triangle t2 = new Triangle(triangle.getP2(), triangle.getP3(), point);
-			Triangle t3 = new Triangle(triangle.getP3(), triangle.getP1(), point);
-			T.remove(triangle);
-			T.add(t1);
-			T.add(t2);
-			T.add(t3);
-			legalize(t1);
-			legalize(t2);
-			legalize(t3);
-		}
+		Triangle t1 = new Triangle(triangle.getP1(), triangle.getP2(), point);
+		Triangle t2 = new Triangle(triangle.getP2(), triangle.getP3(), point);
+		Triangle t3 = new Triangle(triangle.getP3(), triangle.getP1(), point);
+		
+		removeTriangle(triangle);
+		addTriangle(t1);//T.add(t1);
+		addTriangle(t2);//T.add(t2);
+		addTriangle(t3);//T.add(t3);
+		
+		legalize(t1);
+		legalize(t2);
+		legalize(t3);
 	}
 	
 	public void addPointOnSegment(){
@@ -72,13 +75,13 @@ public class Delaunay implements Observable{
 	 * @param point
 	 */
 	public void addPointOutside(Point point){
-		//-TODO
 		ArrayList<Point[]> visibleSegmentList = this.getNeighboursOnVisibleLineFor(point);
-		                                                                                                                                 
+		
 		for(Point[] segment : visibleSegmentList){
 			Triangle futurTriangle = new Triangle(point, segment[0], segment[1]);
 			if(!containsTriangle(futurTriangle)){
-				T.add(futurTriangle);
+				this.addTriangle(futurTriangle);//T.add(futurTriangle);
+				legalize(futurTriangle);
 			}
 		}
 	}
@@ -171,10 +174,12 @@ public class Delaunay implements Observable{
 		Triangle illegalNeighbour = getIllegalNeighbour(t, getNeighbours(t));
 		if(illegalNeighbour!=null){
 			Triangle[] listOldAndNew = flip(t, illegalNeighbour);
-			T.remove(listOldAndNew[0]);
-			T.remove(listOldAndNew[1]);
-			T.add(listOldAndNew[2]);
-			T.add(listOldAndNew[3]);
+			removeTriangle(listOldAndNew[0]);
+			removeTriangle(listOldAndNew[1]);
+			addTriangle(listOldAndNew[2]);//T.add(listOldAndNew[2]);
+			addTriangle(listOldAndNew[3]);//T.add(listOldAndNew[3]);
+			legalize(listOldAndNew[2]);
+			legalize(listOldAndNew[3]);
 		}
 	}
 	
@@ -253,6 +258,9 @@ public class Delaunay implements Observable{
 	}
 	
 	public Triangle[] flip(Triangle t1, Triangle t2){
+		if(t1.equals(t2)){
+			return null;
+		}
 		Point [] segmentToFlip = new Point[2];
 		Point[] set1 = {t1.getP1(), t1.getP2(), t1.getP3()};
 		Point[] set2 = {t2.getP1(), t2.getP2(), t2.getP3()};
@@ -289,17 +297,44 @@ public class Delaunay implements Observable{
 	}
 	
 	public Triangle getIllegalNeighbour(Triangle t, ArrayList<Triangle> neighbours){
-		Triangle illegalTriangle = null;
 		for(Triangle neighbour : neighbours){
-			Point[] organizedPointSet = t.getCommonSegment(neighbour);
+			/*Point[] organizedPointSet = t.getCommonSegment(neighbour);
 			double currentSegmentLenght = organizedPointSet[0].distance(organizedPointSet[1]);
 			double flipedSegmentLenght = organizedPointSet[2].distance(organizedPointSet[3]);
-			if(currentSegmentLenght>flipedSegmentLenght){
-				illegalTriangle = neighbour;
-				break;
+			if(currentSegmentLenght>flipedSegmentLenght && this.segmentCrossing(organizedPointSet[0], organizedPointSet[1], organizedPointSet[2], organizedPointSet[3])){
+				return neighbour;
+			}*/
+			Triangle[] triangleSet = this.flip(t, neighbour);
+			if(triangleSet!=null){
+				Point[] organizedPointSet = t.getCommonSegment(neighbour);
+				double currentAngleMin = Math.min(triangleSet[0].getAngleMin(), triangleSet[1].getAngleMin());
+				double flipedAngleMin = Math.min(triangleSet[2].getAngleMin(), triangleSet[3].getAngleMin());
+				if(currentAngleMin<flipedAngleMin && segmentCrossing(organizedPointSet[0], organizedPointSet[1], organizedPointSet[2], organizedPointSet[3])){
+					return neighbour;
+				}
+			}
+			
+		}
+		return null;
+	}
+	
+	public void removeTriangle(Triangle triangle){
+		int i=0;
+		int size = T.size();
+		for(int count=0; count<size; count++){
+			if(T.get(i).equals(triangle)){
+				T.remove(i);
+			}
+			else{
+				i = i + 1;
 			}
 		}
-		return illegalTriangle;
+	}
+	
+	public void addTriangle(Triangle triangle){
+		if(!this.containsTriangle(triangle)){
+			T.add(triangle);
+		}
 	}
 
 	public ArrayList<Point> getP() {
@@ -339,6 +374,9 @@ public class Delaunay implements Observable{
 
 	@Override
 	public void update() {
+		System.out.println("From model:");
+		for(Triangle t : T)
+			System.out.println(t);
 		for(Observer obs : observers)
 			obs.update(T);
 	}
