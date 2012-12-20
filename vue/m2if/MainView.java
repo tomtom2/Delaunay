@@ -62,6 +62,8 @@ public class MainView extends JFrame implements Observer{
 		JMenuItem mntmRepaint = new JMenuItem("Repaint");
 		mntmRepaint.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
+				panel.setTrianglesAdded(new ArrayList<Triangle>());
+				panel.setTrianglesRemoved(new ArrayList<Triangle>());
 				panel.revalidate();
 				panel.repaint();
 			}
@@ -76,6 +78,8 @@ public class MainView extends JFrame implements Observer{
 				triangulation = new ArrayList<Triangle>();
 				triangulator.setP(new ArrayList<Point>());
 				triangulator.setT(new ArrayList<Triangle>());
+				panel.setTrianglesAdded(new ArrayList<Triangle>());
+				panel.setTrianglesRemoved(new ArrayList<Triangle>());
 				panel.repaint();
 			}
 			
@@ -99,7 +103,7 @@ public class MainView extends JFrame implements Observer{
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+				addPoint(arg0.getX(), arg0.getY());
 			}
 
 			@Override
@@ -122,18 +126,40 @@ public class MainView extends JFrame implements Observer{
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				addPoint(arg0.getX(), arg0.getY());
+				
 			}
 			
 		});
 	}
 
 	public void update(ArrayList<Triangle> triangulation) {
-		this.triangulation = triangulation;
+		ArrayList<Triangle> trianglesAdded = new ArrayList<Triangle>();
+		ArrayList<Triangle> trianglesRemoved = new ArrayList<Triangle>();
+		for(Triangle t : triangulation){
+			if(!this.triangulation.contains(t)){
+				trianglesAdded.add(t);
+			}
+		}
+		for(Triangle t1 : this.triangulation){
+			boolean contained = false;
+			for(Triangle t2 : triangulation){
+				if(t1.equals(t2)){
+					contained = true;
+				}
+			}
+			if(!contained){
+				trianglesRemoved.add(t1);
+			}
+		}
+		this.triangulation.clear();
+		for(Triangle t : triangulation)
+			this.triangulation.add(t);
 		/*System.out.println("From view:");
 		for(Triangle t : this.triangulation)
 			System.out.println(t);
 		System.out.println("\n\n***************************************");*/
+		panel.setTrianglesAdded(trianglesAdded);
+		panel.setTrianglesRemoved(trianglesRemoved);
 		panel.repaint();
 	}
 	
@@ -150,6 +176,8 @@ public class MainView extends JFrame implements Observer{
 		/**
 		 * 
 		 */
+		private ArrayList<Triangle> trianglesAdded = new ArrayList<Triangle>();
+		private ArrayList<Triangle> trianglesRemoved = new ArrayList<Triangle>();
 		private static final long serialVersionUID = 1L;
 
 		public void paintComponent(Graphics g) {
@@ -164,7 +192,32 @@ public class MainView extends JFrame implements Observer{
 		    	g.drawLine(t.getP2().getX(),t.getP2().getY(),t.getP3().getX(),t.getP3().getY());
 		    	g.drawLine(t.getP3().getX(),t.getP3().getY(),t.getP1().getX(),t.getP1().getY());
 		    }
+		    if(trianglesAdded.size()>0){
+		    	g.setColor(Color.green);
+		    	for(Triangle t : trianglesAdded){
+			    	g.drawLine(t.getP1().getX(),t.getP1().getY(),t.getP2().getX(),t.getP2().getY());
+			    	g.drawLine(t.getP2().getX(),t.getP2().getY(),t.getP3().getX(),t.getP3().getY());
+			    	g.drawLine(t.getP3().getX(),t.getP3().getY(),t.getP1().getX(),t.getP1().getY());
+			    }
+		    }
+		    if(trianglesRemoved.size()>0){
+		    	g.setColor(Color.red);
+		    	for(Triangle t : trianglesRemoved){
+			    	g.drawLine(t.getP1().getX(),t.getP1().getY(),t.getP2().getX(),t.getP2().getY());
+			    	g.drawLine(t.getP2().getX(),t.getP2().getY(),t.getP3().getX(),t.getP3().getY());
+			    	g.drawLine(t.getP3().getX(),t.getP3().getY(),t.getP1().getX(),t.getP1().getY());
+			    }
+		    }
 		  }
+
+		public void setTrianglesAdded(ArrayList<Triangle> trianglesAdded) {
+			this.trianglesAdded = trianglesAdded;
+		}
+
+		public void setTrianglesRemoved(ArrayList<Triangle> trianglesRemoved) {
+			this.trianglesRemoved = trianglesRemoved;
+		}
+		
 	}
 
 }

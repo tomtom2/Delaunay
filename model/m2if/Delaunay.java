@@ -79,8 +79,9 @@ public class Delaunay implements Observable{
 		
 		for(Point[] segment : visibleSegmentList){
 			Triangle futurTriangle = new Triangle(point, segment[0], segment[1]);
+			System.out.println("new outside triangle -> "+futurTriangle);
 			if(!containsTriangle(futurTriangle)){
-				this.addTriangle(futurTriangle);//T.add(futurTriangle);
+				addTriangle(futurTriangle);//T.add(futurTriangle);
 				legalize(futurTriangle);
 			}
 		}
@@ -332,7 +333,7 @@ public class Delaunay implements Observable{
 	}
 	
 	public void addTriangle(Triangle triangle){
-		if(!this.containsTriangle(triangle)){
+		if(!containsTriangle(triangle)){
 			T.add(triangle);
 		}
 	}
