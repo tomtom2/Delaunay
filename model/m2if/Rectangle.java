@@ -12,10 +12,11 @@ public class Rectangle {
 	 * @param points
 	 */
 	public Rectangle(Point[] points){
-		Xmin = points[0].getX();
-		Xmax = points[0].getX();
-		Ymin = points[0].getY();
-		Ymax = points[0].getY();
+		double e = 0.000001;
+		Xmin = points[0].getX()+e;
+		Xmax = points[0].getX()-e;
+		Ymin = points[0].getY()+e;
+		Ymax = points[0].getY()-e;
 		for(Point p : points){
 			if(p.getX()>=Xmax){
 				Xmax = p.getX();
@@ -33,6 +34,24 @@ public class Rectangle {
 	}
 	
 	public boolean containsCoord(double x, double y){
+		
 		return x<Xmax && x>Xmin && y<Ymax && y>Ymin;
 	}
+
+	public double getXmin() {
+		return Xmin;
+	}
+
+	public double getXmax() {
+		return Xmax;
+	}
+
+	public double getYmin() {
+		return Ymin;
+	}
+
+	public double getYmax() {
+		return Ymax;
+	}
+	
 }

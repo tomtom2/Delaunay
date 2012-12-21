@@ -103,6 +103,7 @@ public class MainView extends JFrame implements Observer{
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				// TODO Auto-generated method stub
+				System.out.println("> mouse clicked !");
 				addPoint(arg0.getX(), arg0.getY());
 			}
 

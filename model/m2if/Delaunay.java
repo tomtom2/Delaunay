@@ -76,7 +76,9 @@ public class Delaunay implements Observable{
 	 */
 	public void addPointOutside(Point point){
 		ArrayList<Point[]> visibleSegmentList = this.getNeighboursOnVisibleLineFor(point);
-		
+		System.out.println("Segments to be linked:");
+		for(Point[] seg : visibleSegmentList)
+			System.out.println("\t"+seg[0]+"-"+seg[1]);
 		for(Point[] segment : visibleSegmentList){
 			Triangle futurTriangle = new Triangle(point, segment[0], segment[1]);
 			System.out.println("new outside triangle -> "+futurTriangle);
@@ -124,12 +126,10 @@ public class Delaunay implements Observable{
 			double x = p12.getX();
 			double y = c*x + d;
 			
-			Point[] segment1 = {p11, p12};
-			Rectangle cible1 = new Rectangle(segment1);
-			Point[] segment2 = {p21, p22};
-			Rectangle cible2 = new Rectangle(segment2);
-			
-			return (cible1.containsCoord(x, y) && cible2.containsCoord(x, y));
+			Point[] segment = {p21, p22};
+			Rectangle cible = new Rectangle(segment);
+			boolean secondCondition = (p12.getY()<y && p11.getY()>y) || (p11.getY()<y && p12.getY()>y);
+			return (cible.containsCoord(x, y) && cible.containsCoord(x, y));
 		}
 		//if second segment is vertical
 		else if(p22.getX()==p21.getX()){
@@ -210,6 +210,9 @@ public class Delaunay implements Observable{
 	
 	public ArrayList<Point[]> getNeighboursOnVisibleLineFor(Point p){
 		ArrayList<Point> visiblePoints = this.getListOfPointsVisibleBy(p);
+		System.out.println("\tVisible points:");
+		for(Point point : visiblePoints)
+			System.out.println("\t\t"+point);
 		ArrayList<Point[]> neigbourList = new ArrayList<Point[]>();
 		for(Triangle triangle : T){
 			if(visiblePoints.contains(triangle.getP1()) && visiblePoints.contains(triangle.getP2())){
@@ -299,12 +302,6 @@ public class Delaunay implements Observable{
 	
 	public Triangle getIllegalNeighbour(Triangle t, ArrayList<Triangle> neighbours){
 		for(Triangle neighbour : neighbours){
-			/*Point[] organizedPointSet = t.getCommonSegment(neighbour);
-			double currentSegmentLenght = organizedPointSet[0].distance(organizedPointSet[1]);
-			double flipedSegmentLenght = organizedPointSet[2].distance(organizedPointSet[3]);
-			if(currentSegmentLenght>flipedSegmentLenght && this.segmentCrossing(organizedPointSet[0], organizedPointSet[1], organizedPointSet[2], organizedPointSet[3])){
-				return neighbour;
-			}*/
 			Triangle[] triangleSet = this.flip(t, neighbour);
 			if(triangleSet!=null){
 				Point[] organizedPointSet = t.getCommonSegment(neighbour);
@@ -375,9 +372,6 @@ public class Delaunay implements Observable{
 
 	@Override
 	public void update() {
-		System.out.println("From model:");
-		for(Triangle t : T)
-			System.out.println(t);
 		for(Observer obs : observers)
 			obs.update(T);
 	}
